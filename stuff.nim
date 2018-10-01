@@ -1,4 +1,4 @@
-import math
+import math, nimBMP
 
 proc random*(self: var openArray[float64], r: float64): int=
     var sum = sum(self)
@@ -19,3 +19,14 @@ proc random*(self: var openArray[float64], r: float64): int=
             return i
     
     return 0
+
+proc get*(self: BMP, x: int, y:int): BMPRGBA=
+    return self.pixels[(y * self.width)+x]
+
+proc power*(a:int, n:int): int64=
+    var product = 1.int64
+    
+    for i in 0..n-1:
+        product *= a
+
+    return product

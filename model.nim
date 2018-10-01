@@ -1,4 +1,4 @@
-import random, math, stuff
+import random, math, stuff, nimBMP
 
 const DX* = [-1, 0, 1, 0]
 const DY* = [0, 1, 0, -1]
@@ -7,34 +7,29 @@ var opposite* {.global.} = [2, 3, 0, 1]
 type 
     Observation = enum
         succ, fail, cont
-    Model* = ref object
+    Model* = ref object of RootObj
         wave: seq[seq[bool]]
 
         propagator: seq[seq[seq[int]]]
-        compatible: seq[seq[seq[int]]]
+        compatible*: seq[seq[seq[int]]]
         observed: seq[int]
 
-        stack: seq[tuple[index: int, value: int]]
-        stacksize: int
+        stack*: seq[tuple[index: int, value: int]]
+        stacksize*: int
 
         random: Rand
-        FMX, FMY, T: int
-        periodic: bool
+        FMX*, FMY*, T: int
+        periodic*: bool
 
         weights: seq[float64]
-        weightLogWeights: seq[float64]
+        weightLogWeights*: seq[float64]
 
-        sumsOfOnes: seq[int]
-        sumOfWeights, sumOfWeightLogWeights, startingEntropy: float64
-        sumsOfWeights, sumsOfWeightLogWeights, entropies: seq[float64]
+        sumsOfOnes*: seq[int]
+        sumOfWeights*, sumOfWeightLogWeights*, startingEntropy*: float64
+        sumsOfWeights*, sumsOfWeightLogWeights*, entropies*: seq[float64]
 
         onBoundary: proc(x: int, y: int): bool {.closure.}
-
-
-proc newModel*(width: int, height: int): Model =
-    result = Model(FMX: width,
-                   FMY: height)
-
+        graphics: proc(): BMP {.closure.}
 
 proc init*(self: Model) =
     self.wave.setLen(self.FMX * self.FMY)
@@ -92,6 +87,7 @@ proc observe*(self: Model): Observation=
     var argmin = -1
 
     for i in 0..self.wave.len-1:
+        # TODO: mod & div over / & % ?
         if self.onBoundary(i mod self.FMX, i div self.FMX):
             continue
         
@@ -190,7 +186,8 @@ proc run*(self: Model, seed: int, limit: int): bool=
     self.random = initRand(seed)
 
     var i = 0
-
+    
+    # TODO: Correct funcitonality?
     while i < limit or limit == 0:
         let result = self.observe()
         if result == Observation.succ:
